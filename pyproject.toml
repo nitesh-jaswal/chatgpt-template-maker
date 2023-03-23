@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "chat-gpt-meeting-note-taker"
+version = "0.1.0"
+description = "Sends a prompt to chatgpt and asks it to take meeting notes"
+authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "chat_gpt_meeting_note_taker"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^0.27.2"
+pydantic = "^1.10.7"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
+black = "^23.1.0"
+pytest-env = "^0.8.1"
+pytest-mypy = "^0.10.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
