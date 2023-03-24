@@ -1,6 +1,6 @@
 import openai
 import re
-from api.settings import OpenAISettings
+from api.settings import OpenAIAuthSettings
 import logging
 import requests
 import json
@@ -9,10 +9,13 @@ logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
 
 logger.info("Session started")
-openai_settings = OpenAISettings()  # type: ignore
+openai_settings = OpenAIAuthSettings()  # type: ignore
 logger.info(f"Settings loaded: {openai_settings.json()}")
 openai.organization = openai_settings.organization_id
-openai.api_key = openai_settings.api_secret.get_secret_value()
+
+# pattern = re.compile(".*gpt.+")
+# openai.api_key = openai_settings.api_secret.get_secret_value()
+# print( [model for model in openai.Model.list()['data'] if  pattern.match(model['id'])])
 
 # messages = [
 #     {"role": "system", "content": "Your task is to `Take Meeting Notes`. I will list events that will be occouring in the meeting in the form of CamelCase 'phrases' in English. The format of the events will be like that of Rust Enums. The events may sometimes carry some metadata about the event itself. Which will be available in a `key=value` pair format. You will not give a response. Just an acknowledgement of receiving the event. Until you encounter the `EndSession` event. When you encounter this, you will provide a listed summary with description of all the events that happened."},
@@ -60,5 +63,3 @@ openai.api_key = openai_settings.api_secret.get_secret_value()
 
 # # Print the result
 # print(response["choices"][0]["message"]["content"])
-# pattern = re.compile(".*gpt.+")
-# print( [model for model in openai.Model.list()['data'] if  pattern.match(model['id'])])

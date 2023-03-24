@@ -1,1 +1,1 @@
-from .__chatgpt_wrapper import ChatGPT
+from .__chatgpt_client import ChatGPTClient
