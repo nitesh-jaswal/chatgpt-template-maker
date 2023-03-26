@@ -1,18 +1,24 @@
 import openai
 import re
-from api.settings import OpenAIAuthSettings
+from api.settings import OpenAIAuthSettings, OpenAIAPISettings
 import logging
 import requests
 import json
-
+from api.services import ChatGPTClient
+from api.models.openai_models import Prompt, Role
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
 
 logger.info("Session started")
-openai_settings = OpenAIAuthSettings()  # type: ignore
-logger.info(f"Settings loaded: {openai_settings.json()}")
-openai.organization = openai_settings.organization_id
-
+auth_settings = OpenAIAuthSettings()  # type: ignore
+api_settings = OpenAIAPISettings(
+    max_prompts=10,
+    system_prompt="You are a chat assistant who helps the users by only responding in yes or no"
+)
+ChatGPTClient.auth = auth_settings
+gpt_client = ChatGPTClient(api_settings)
+response = gpt_client.add_messages([Prompt(Role.USER, "Do you like Game of Thrones?")]).send_messages()
+print(response)
 # pattern = re.compile(".*gpt.+")
 # openai.api_key = openai_settings.api_secret.get_secret_value()
 # print( [model for model in openai.Model.list()['data'] if  pattern.match(model['id'])])

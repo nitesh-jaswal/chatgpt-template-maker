@@ -1,8 +1,9 @@
 import pytest
 import pytest
-from api.models import Role, Prompt, PromptBuffer
+from api.models.openai_models import Role, Prompt, PromptBuffer
 from api.exceptions import BufferExceeded
 from typing import List
+
 
 def test_prompt_buffer_append_within_limit():
     buffer = PromptBuffer(2)
@@ -15,6 +16,7 @@ def test_prompt_buffer_append_within_limit():
     assert len(buffer) == 2
     assert buffer[0] == prompt1
     assert buffer[1] == prompt2
+
 
 def test_prompt_buffer_append_exceed_limit():
     # Test raises when more than max_prompts
@@ -30,14 +32,11 @@ def test_prompt_buffer_append_exceed_limit():
     assert len(msg) == 1
     assert msg[0] == f"Buffer exceeded the maximum number of prompts: 1"
 
+
 def test_prompt_buffer_extend_within_limit():
     # Arrange
     buffer = PromptBuffer(3)
-    prompts: List[Prompt] = [
-        Prompt(Role.SYSTEM, "Hello"),
-        Prompt(Role.USER, "Hi"),
-        Prompt(Role.SYSTEM, "How are you?")
-    ]
+    prompts: List[Prompt] = [Prompt(Role.SYSTEM, "Hello"), Prompt(Role.USER, "Hi"), Prompt(Role.SYSTEM, "How are you?")]
 
     # Act
     buffer.extend(prompts)
@@ -50,14 +49,11 @@ def test_prompt_buffer_extend_within_limit():
         prompts_in_buffer.append(prompt)
     assert prompts == prompts_in_buffer
 
+
 def test_prompt_buffer_extend_exceed_limit():
     # Arrange
     buffer = PromptBuffer(2)
-    prompts: List[Prompt] = [
-        Prompt(Role.SYSTEM, "Hello"),
-        Prompt(Role.USER, "Hi"),
-        Prompt(Role.SYSTEM, "How are you?")
-    ]
+    prompts: List[Prompt] = [Prompt(Role.SYSTEM, "Hello"), Prompt(Role.USER, "Hi"), Prompt(Role.SYSTEM, "How are you?")]
 
     # Act,Assert
     with pytest.raises(BufferExceeded) as exc:
@@ -65,7 +61,7 @@ def test_prompt_buffer_extend_exceed_limit():
     msg = exc.value.args
     assert len(msg) == 1
     assert msg[0] == f"Buffer exceeded the maximum number of prompts: 2"
-    
+
 
 def test_prompt_buffer_iter():
     # Arrange
@@ -79,9 +75,8 @@ def test_prompt_buffer_iter():
         # Assert
         assert prompt == buffer[i]
 
+
 def test_negative_max_prompts():
     # Arrange, Act, Assert
     with pytest.raises(ValueError):
         PromptBuffer(-1)
-
-

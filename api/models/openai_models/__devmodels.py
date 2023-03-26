@@ -1,15 +1,18 @@
 from enum import Enum
-from dataclasses import dataclass
 from typing import List, Iterator
+from dataclasses import dataclass
 from api.exceptions import BufferExceeded
 from functools import lru_cache, cached_property
 
 # NOTE: Question: How can I turn prompts into templates? Templates need to be a mix of system and user prompts
 # NOTE: Question: Add typing.Protocols IsUserPrompt, IsSystemPrompt?
 
+
 class Role(str, Enum):
     SYSTEM = "system"
     USER = "user"
+    ASSISTANT = "assistant"
+
 
 @dataclass
 class Prompt:
@@ -23,15 +26,11 @@ class Prompt:
 
     @lru_cache
     def to_dict(self) -> dict[str, str]:
-        return dict(
-            role=self.role.value,
-            content=self.content
-        )
-    
+        return dict(role=self.role.value, content=self.content)
+
     @cached_property
     def length(self) -> int:
         return len(self._split_tokens)
-
 
 
 class PromptBuffer:
@@ -40,7 +39,6 @@ class PromptBuffer:
             raise ValueError("max_prompts must be a non-negative integer")
         self.max_prompts = max_prompts
         self._prompts: List[Prompt] = []
-
 
     def append(self, prompt: Prompt):
         if len(self._prompts) >= self.max_prompts:
@@ -61,9 +59,5 @@ class PromptBuffer:
         self._prompts[index]
         return self._prompts[index]
 
-@dataclass
-class ModelResponse:
-    ...
-
-class ModelResponseBuffer:
-    ...
+    def to_list(self) -> List[Prompt]:
+        return self._prompts
