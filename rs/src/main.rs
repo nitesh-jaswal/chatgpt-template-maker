@@ -1,11 +1,22 @@
-use tide::Request;
-use tide::Response;
+// use tide::Request;
+// use tide::Response;
+use warp::Filter;
 use async_openai::Chat;
 use async_openai::Client;
 use async_openai::types::{Role, ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, CreateChatCompletionResponse};
 use serde::{Serialize, Deserialize};
 use std::error::Error;
+use std::convert::Infallible;
+use warp::reject::Reject;
 use log;
+#[derive(Debug)]
+struct CustomRejection {
+    status_code: warp::http::StatusCode,
+    message: String,
+}
+
+impl Reject for CustomRejection {}
+
 #[derive(Debug, Deserialize)]
 struct EventsRequest {
     events: Vec<String>
@@ -21,7 +32,7 @@ impl NoTaker {
         let events = events.events.join("\n");
         let request = CreateChatCompletionRequestArgs::default()
             .max_tokens(200u16)
-            .model("gpt-3,5-turbo")
+            .model("gpt-3.5-turbo")
             .messages([
                 ChatCompletionRequestMessageArgs::default()
                     .role(Role::System)
@@ -38,8 +49,7 @@ impl NoTaker {
     }
 }
 
-async fn process_events(mut req: Request<()>) -> tide::Result<String> {
-    let events_request: EventsRequest = req.body_json().await?;
+async fn process_events(events_request: EventsRequest) -> Result<impl warp::Reply, warp::Rejection> {
     log::info!("Reveived request {:?}", events_request);
     let notaker = NoTaker{
         client: Client::new(),
@@ -48,20 +58,31 @@ async fn process_events(mut req: Request<()>) -> tide::Result<String> {
     let response = notaker.send_events(&events_request).await;
     match response {
         Ok(res) => {
+            
+            log::info!("usage: {}", res.usage.unwrap().total_tokens);
             if let Some(assistant_response) = res.choices.last() {
                 let content = &assistant_response.message.content;
                 match assistant_response.message.role {
                     Role::Assistant => return Ok(content.to_owned()),
-                    _ => return Err(tide::Error::from_str(500, "OpenAI internal error. Assistant response not received."))
+                    _ => return Err(warp::reject::custom(CustomRejection {
+                        status_code: warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                        message: "OpenAI internal error. Assistant response not received 1.".to_owned(),
+                    }))
                 }
             }
             else {
-                return Err(tide::Error::from_str(500, "OpenAI internal error. Assistant response not received."))
+                return Err(warp::reject::custom(CustomRejection {
+                    status_code: warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    message: "OpenAI internal error. Assistant response not received 2.".to_owned(),
+                }))
             }
         },
         Err(err) => {
             println!("Encountered error: {:?}", err);
-            return Err(tide::Error::from_str(500, "Could not process request"))
+            return Err(warp::reject::custom(CustomRejection {
+                status_code: warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                message: "OpenAI internal error. Assistant response not received 3.".to_owned(),
+            }))
         }
         
     }
@@ -69,12 +90,18 @@ async fn process_events(mut req: Request<()>) -> tide::Result<String> {
 
 }
 
+// TODO: 
+// Add tiktoken token counting, to estimate and keep a track of token usage
+// Automatically append EndSession
 #[tokio::main] 
-async fn main() -> tide::Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     femme::start();
-    let mut app = tide::new();
-    app.at("/").get(process_events);
-    app.listen("0.0.0.0:8001").await?;
+    let process_events_route = warp::path::end()
+        .and(warp::post())
+        .and(warp::body::json())
+        .and_then(process_events);
+    let routes = process_events_route;
+    warp::serve(routes).run(([0, 0, 0, 0], 8001)).await;
     Ok(())
 }
   
