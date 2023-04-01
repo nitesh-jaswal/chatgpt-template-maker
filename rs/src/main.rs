@@ -7,6 +7,7 @@ use axum::{
 use std::net::SocketAddr;
 use async_openai::Chat;
 use async_openai::Client;
+use async_openai::error::ApiError;
 use async_openai::types::{Role, ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, CreateChatCompletionResponse};
 use serde::{Serialize, Deserialize};
 use std::error::Error;
@@ -61,17 +62,16 @@ async fn process_events(Json(events_request): Json<EventsRequest>) -> (StatusCod
                 let content = &assistant_response.message.content;
                 match assistant_response.message.role {
                     Role::Assistant => return (StatusCode::OK, content.to_owned()),
-                    _ => return (StatusCode::INTERNAL_SERVER_ERROR, "OpenAI internal error. Assistant response not received 1.".to_string())
+                    _ => return (StatusCode::INTERNAL_SERVER_ERROR, "OpenAI internal error. Assistant response not received.".to_string())
                 }
             }
             else {
-                return (StatusCode::INTERNAL_SERVER_ERROR, "OpenAI internal error. Assistant response not received 2.".to_string())
-
+                return (StatusCode::INTERNAL_SERVER_ERROR, "No response received from OpenAI".to_string())
             }
         },
         Err(err) => {
-            println!("Encountered error: {:?}", err);
-            return (StatusCode::INTERNAL_SERVER_ERROR, "OpenAI internal error. Assistant response not received 3.".to_string())
+            tracing::error!("[ERROR] {:?}", err);
+            return (StatusCode::INTERNAL_SERVER_ERROR, "Your request could not be processed. Please contact system admins in case it persists".to_string())
 
         }
         
@@ -91,8 +91,10 @@ async fn main() {
     let app = Router::new()
         .route("/", get(process_events));
 
+    
     let addr = SocketAddr::from(([127, 0, 0, 1], 8001));
-    tracing::debug!("Listening on {}", addr);
+    
+    tracing::info!("Listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
