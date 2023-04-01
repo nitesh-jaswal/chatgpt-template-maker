@@ -290,7 +290,6 @@ dependencies = [
  "async-openai",
  "axum",
  "femme",
- "log",
  "serde",
  "tiktoken-rs",
  "tokio",

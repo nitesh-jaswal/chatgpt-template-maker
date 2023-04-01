@@ -9,7 +9,6 @@ edition = "2021"
 async-openai = "0.10.1"
 axum = "0.6.12"
 femme = "2.2.1"
-log = "0.4.17"
 serde = { version = "1.0.158", features = ["derive"] }
 tiktoken-rs = "0.3.3"
 tokio = { version = "1.26.0", features = ["full"] }

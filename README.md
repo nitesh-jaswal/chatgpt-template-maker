@@ -23,13 +23,10 @@ cargo build
 cargo run
 ```
 
-The request/response model of the api is simple. You need to send an array of string prompts as a GET request. You will  get a single  string response back.  Currently the response limit is capped at 200 tokens
+The request/response model of the api is simple for the single_prompt endpoint. You need to send a string prompt as a GET request. You will get a single string response back.  Currently the response limit is capped at 200 tokens
 ```bash
-curl -X GET -H "Content-Type: application/json" -d '{"events": ["Sample user prompt"]}' <URL>
+curl -X GET -H "Content-Type: application/json" -d '{"query": "Sample user prompt"}' 127.0.0.1:8001/single_prompt/gitagpt/krishna
 ```
-
-The system prompt can be overridden in `fn main()`
-
 
 
 # SPIKE
