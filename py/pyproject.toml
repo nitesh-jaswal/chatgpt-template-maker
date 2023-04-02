@@ -4,8 +4,7 @@ version = "0.1.0"
 description = "Sends a prompt to chatgpt and asks it to take meeting notes"
 authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>"]
 license = "MIT"
-readme = "README.md"
-packages = [{include = "chat_gpt_meeting_note_taker"}]
+packages = [{include = "api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
