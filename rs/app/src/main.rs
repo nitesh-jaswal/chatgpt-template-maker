@@ -1,6 +1,3 @@
-mod helper;
-mod templates;
-
 use axum::{
     routing::get,
     http::StatusCode,
@@ -8,13 +5,13 @@ use axum::{
 };
 use std::net::SocketAddr;
 
-use templates::send_single_prompt;
-use templates::gitagpt::{
+use cli::templates::send_single_prompt;
+use cli::templates::gitagpt::{
     GitaGPTFlavours,
     GitaGPTResponse,
     GitaGPTRequest,
 };
-use crate::helper::ProcessResponse;
+use cli::helper::ProcessResponse;
 
 
 async fn process_gitagpt_krishna_request(Json(r): Json<GitaGPTRequest>) -> (StatusCode, String) {
