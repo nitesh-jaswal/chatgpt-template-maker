@@ -21,7 +21,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="/opt/poetry/bin:$PATH"
 
 COPY utils/download-vscode-server.sh .
-RUN sudo -E sh download-vscode-server.sh && rm download-vscode-server.sh && sudo chown -R athena_user .vscode-server
+RUN sudo -E sh download-vscode-server.sh && rm download-vscode-server.sh
 
 # Use an existing package to install zsh (and some of its plugins) in Docker:
 # https://github.com/deluan/zsh-in-docker
