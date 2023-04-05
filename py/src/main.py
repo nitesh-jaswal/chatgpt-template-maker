@@ -40,7 +40,7 @@ def main():
     openai.api_key = API_KEY
 
     while True:
-        content = input("User (type 'exit' to end the session): ")
+        content = sys.stdin.read()
         if content.lower() == 'exit':
             print("Bot: Goodbye! If you have any more questions or need assistance in the future, feel free to ask. Have a great day!")
             break
