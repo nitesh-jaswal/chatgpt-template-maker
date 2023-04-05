@@ -10,6 +10,7 @@ packages = [{include = "src"}]
 python = "^3.10"
 openai = "^0.27.2"
 pydantic = "^1.10.7"
+flask = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
