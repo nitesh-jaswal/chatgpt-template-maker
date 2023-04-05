@@ -2,8 +2,9 @@
 name = "sasta-chat-gpt-4"
 version = "0.1.0"
 description = "Access ChatGPT-4 API using personal account."
-authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>, Ankit Mathur <val.mathur@gmail.com>"]
+authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>", "Ankit Mathur <val.mathur@gmail.com>"]
 license = "MIT"
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
