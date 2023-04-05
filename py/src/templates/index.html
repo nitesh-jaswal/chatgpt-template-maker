@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat with GPT-4</title>
+  </head>
+  <body>
+    <h1>Chat with GPT-4</h1>
+    <form id="chat-form">
+      <input type="text" id="user-input" name="content" placeholder="Type your message here...">
+      <button type="submit">Send</button>
+    </form>
+    <div id="chat-log"></div>
+    <script>
+      const form = document.getElementById('chat-form');
+      const userInput = document.getElementById('user-input');
+      const chatLog = document.getElementById('chat-log');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const content = userInput.value.trim();
+        if (content !== '') {
+          const xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText).response;
+              chatLog.innerHTML
