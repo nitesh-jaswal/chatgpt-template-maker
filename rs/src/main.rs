@@ -1,48 +1,62 @@
-mod helper;
-mod templates;
-
-use axum::{
-    routing::get,
-    http::StatusCode,
-    Json, Router
-};
+use std::env;
+use openai::ChatCompletion;
+use log::{info, error};
+use axum::{Router, routing::get, http::StatusCode, Json};
+use serde_json::json;
 use std::net::SocketAddr;
 
-use templates::send_single_prompt;
-use templates::gitagpt::{
-    GitaGPTFlavours,
-    GitaGPTResponse,
-    GitaGPTRequest,
-};
-use crate::helper::ProcessResponse;
+// Define the model ID and API key
+const MODEL_ID: &str = "gpt-4";
+const API_KEY: &str = env!("OPENAI_API_KEY"); // Retrieve the API key from environment variable
 
+// Define the conversation struct for Rust
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+struct Conversation {
+    role: String,
+    content: String,
+}
 
-async fn process_gitagpt_krishna_request(Json(r): Json<GitaGPTRequest>) -> (StatusCode, String) {
-    tracing::info!("Reveived request {:?}", r);
-    let response = send_single_prompt(GitaGPTFlavours::Krishna, &r.query).await;
+// Define the main function to process requests
+async fn process_request(Json(conversation): Json<Vec<Conversation>>) -> (StatusCode, String) {
+    info!("Received request: {:?}", conversation);
+    let response = chatgpt_convo(conversation).await;
     match response {
-        Ok(res) => return GitaGPTResponse::process_response(&res),
+        Ok(res) => return (StatusCode::OK, res.choices[0].message.content.clone()),
         Err(err) => {
-            tracing::error!("[ERROR] {:?}", err);
+            error!("Error: {:?}", err);
             return (StatusCode::INTERNAL_SERVER_ERROR, "Your request could not be processed. Please contact system admins in case it persists".to_string())
         }
     }
 }
 
-// TODO: 
-// Run clippy and fix things
-// Add tiktoken token counting, to estimate and keep a track of token usage
-// Automatically append EndSession
-// Better errors
-#[tokio::main] 
+// Function to call OpenAI API for chat completion
+async fn chatgpt_convo(conversation: Vec<Conversation>) -> Result<ChatCompletion, Box<dyn std::error::Error>> {
+    let messages: Vec<_> = conversation.iter().map(|conv| {
+        json!({
+            "role": conv.role,
+            "content": conv.content
+        })
+    }).collect();
+    let response = ChatCompletion::create(&*API_KEY, &ChatCompletionRequest {
+        model: MODEL_ID,
+        messages,
+    }).await?;
+    Ok(response)
+}
+
+// Define the main function
+#[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    // Initialize logging
+    env_logger::init();
+    
+    // Define the app routes
     let app = Router::new()
-        .route("/single_prompt/gitagpt/krishna", get(process_gitagpt_krishna_request));
+        .route("/chat", get(process_request));
     
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8001));
-    
-    tracing::info!("Listening on {}", addr);
+    // Start the server
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8000));
+    info!("Listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
