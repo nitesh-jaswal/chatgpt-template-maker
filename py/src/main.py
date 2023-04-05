@@ -13,6 +13,7 @@ This script prompts the user for a question on the terminal and hits openai API 
 import os
 import openai
 import logging
+from flask import Flask, request, jsonify, render_template
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.WARN)
@@ -20,6 +21,7 @@ logging.basicConfig(level=logging.WARN)
 # Hard-code which model to use
 MODEL_ID = 'gpt-4'
 
+app = Flask(__name__)
 
 def chatgpt_convo(conversation):
     response = openai.ChatCompletion.create(
@@ -28,6 +30,19 @@ def chatgpt_convo(conversation):
     )
     return response['choices'][0]['message']['content']
 
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    content = request.form['content']
+    if content.lower() == 'exit':
+        return jsonify({'response': "Bot: Goodbye! If you have any more questions or need assistance in the future, feel free to ask. Have a great day!"})
+    conversation = [{'role': 'user', 'content': content}]
+    return jsonify({'response': chatgpt_convo(conversation)})
 
 def main():
     logger.info("Session started")
@@ -38,15 +53,7 @@ def main():
         API_KEY = input("Please enter the value for OPENAI_API_KEY: ")
 
     openai.api_key = API_KEY
-
-    while True:
-        content = input("User (type 'exit' to end the session): ")
-        if content.lower() == 'exit':
-            print("Bot: Goodbye! If you have any more questions or need assistance in the future, feel free to ask. Have a great day!")
-            break
-        conversation = [{'role': 'user', 'content': content}]
-        print("Bot:", chatgpt_convo(conversation))
-
+    app.run(debug=True)
 
 if __name__ == '__main__':
     main()
