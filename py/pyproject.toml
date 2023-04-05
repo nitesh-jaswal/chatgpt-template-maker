@@ -1,16 +1,14 @@
 [tool.poetry]
-name = "chat-gpt-meeting-note-taker"
+name = "sasta-chat-gpt-4"
 version = "0.1.0"
-description = "Sends a prompt to chatgpt and asks it to take meeting notes"
-authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>"]
+description = "Access ChatGPT-4 API using personal account."
+authors = ["Nitesh Singh Jaswal <nitesh.jaswal@signify.com>, Ankit Mathur <val.mathur@gmail.com>"]
 license = "MIT"
-packages = [{include = "api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 openai = "^0.27.2"
 pydantic = "^1.10.7"
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
