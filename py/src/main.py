@@ -17,7 +17,13 @@ import logging
 logger = logging.getLogger()
 logging.basicConfig(level=logging.WARN)
 
-API_KEY = os.environ.get('OPENAI_API_KEY')
+# Ask user for input
+API_KEY = input("Please enter the value for OPENAI_API_KEY: ")
+
+# Set environment variable
+os.environ['OPENAI_API_KEY'] = API_KEY
+
+# Hard-code which model to use
 MODEL_ID = 'gpt-4'
 
 
