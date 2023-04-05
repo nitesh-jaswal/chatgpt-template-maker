@@ -19,7 +19,6 @@ ENV PATH="/opt/poetry/bin:$PATH"
 # https://github.com/deluan/zsh-in-docker
 RUN sh -c "$(curl -fsSL https://github.com/deluan/zsh-in-docker/releases/download/v1.1.3/zsh-in-docker.sh)" -- \
     -t robbyrussell \
-    -p git \
     -p https://github.com/zsh-users/zsh-autosuggestions \
     -p https://github.com/zsh-users/zsh-completions
 
