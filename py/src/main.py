@@ -17,12 +17,6 @@ import logging
 logger = logging.getLogger()
 logging.basicConfig(level=logging.WARN)
 
-# Ask user for input
-API_KEY = input("Please enter the value for OPENAI_API_KEY: ")
-
-# Set environment variable
-os.environ['OPENAI_API_KEY'] = API_KEY
-
 # Hard-code which model to use
 MODEL_ID = 'gpt-4'
 
@@ -32,11 +26,17 @@ def chatgpt_convo(conversation):
         model=MODEL_ID,
         messages=conversation
     )
-    return response['choices'][0]._previous['message']['content']
+    return response['choices'][0]['message']['content']
 
 
 def main():
     logger.info("Session started")
+    if "OPENAI_API_KEY" in os.environ:
+        API_KEY = os.environ["OPENAI_API_KEY"]
+    else:
+        # Ask user for input
+        API_KEY = input("Please enter the value for OPENAI_API_KEY: ")
+
     openai.api_key = API_KEY
 
     while True:
