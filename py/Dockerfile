@@ -26,10 +26,10 @@ RUN ln -s $(poetry env info --path) /opt/.venv
 ENV PATH /opt/.venv/bin:$PATH
 
 # add our source code and install
-COPY src ./src
+COPY app.py templates/ .
 RUN poetry install --no-root
 
 # add flake8 config for style check at build time
 COPY .flake8 .
 
-CMD [ "python", "src/main.py" ]
+CMD [ "python", "app.py" ]
