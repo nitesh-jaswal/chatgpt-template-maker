@@ -62,7 +62,7 @@ def chat():
         'content': content
     })
     response = chatgpt_convo(conversation)[-1]['content']
-    return {'response': response}
+    return jsonify({'response': response})
 
 
 def main():
