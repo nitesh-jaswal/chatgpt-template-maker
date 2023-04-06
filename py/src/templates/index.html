@@ -5,6 +5,8 @@
     <style>
       body {
         font-family: Arial, sans-serif;
+        background-color: #333333;
+        color: #00ffff;
       }
       h1 {
         font-size: 2em;
@@ -22,6 +24,10 @@
         border-radius: 4px;
         border: none;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        background-color: #111111;
+        color: #00ffff;
+        white-space: pre-wrap;
+        word-wrap: break-word;
       }
       input[type="submit"] {
         margin-left: 0.5em;
@@ -36,7 +42,7 @@
       }
       #chat-log {
         padding: 1em;
-        background-color: #f2f2f2;
+        background-color: #111111;
         border-radius: 4px;
         min-height: 200px;
         font-size: 1.2em;
@@ -50,7 +56,7 @@
   <body>
     <h1>Chat with GPT-4</h1>
     <form id="chat-form">
-      <input type="text" id="user-input" name="content" placeholder="Type your message here...">
+      <input type="text" id="user-input" name="content" placeholder="Type your message here... (Press Enter to add new line)">
       <button type="submit">Send</button>
     </form>
     <div id="chat-log"></div>
@@ -74,8 +80,8 @@
           };
           xhr.open('POST', '/chat', true);
           xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-          xhr.send('content=' + content);
-          chatLog.innerHTML += '<p>' + 'You: ' + content + '</p>';
+          xhr.send('content=' + encodeURIComponent(content));
+          chatLog.innerHTML += '<p>' + 'You: ' + content.replace(/\n/g, '<br>') + '</p>';
           chatLog.scrollTop = chatLog.scrollHeight;
           userInput.value = '';
         }
