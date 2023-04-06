@@ -17,7 +17,7 @@
         flex-direction: row;
         margin-bottom: 1em;
       }
-      input[type="text"] {
+      textarea {
         flex-grow: 1;
         padding: 0.5em;
         font-size: 1.2em;
@@ -28,6 +28,7 @@
         color: #00ffff;
         white-space: pre-wrap;
         word-wrap: break-word;
+        resize: vertical;
       }
       input[type="submit"] {
         margin-left: 0.5em;
@@ -56,7 +57,7 @@
   <body>
     <h1>Chat with GPT-4</h1>
     <form id="chat-form">
-      <input type="text" id="user-input" name="content" placeholder="Type your message here... (Press Enter to add new line)">
+      <textarea id="user-input" name="content" placeholder="Type your message here... (Press Shift+Enter to add new line)"></textarea>
       <button type="submit">Send</button>
     </form>
     <div id="chat-log"></div>
@@ -64,6 +65,18 @@
       const form = document.getElementById('chat-form');
       const userInput = document.getElementById('user-input');
       const chatLog = document.getElementById('chat-log');
+
+      userInput.addEventListener('keydown', (event) => {
+        if (event.keyCode === 13 && event.shiftKey) {
+          event.preventDefault();
+          userInput.value += '\n';
+        } else if (event.key === 'Enter' && event.ctrlKey) {
+          event.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+          } else if (event.keyCode === 13) {
+          event.preventDefault();
+        }
+      });
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
