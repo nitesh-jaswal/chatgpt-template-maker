@@ -12,3 +12,6 @@ __pycache__
 # Rust
 rs/target
 py/.key
+gpt4api/gpt4api/.DS_Store
+py/.DS_Store
+.DS_Store

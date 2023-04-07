@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat with GPT-4</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #333333;
+        color: #00ffff;
+      }
+      h1 {
+        font-size: 2em;
+        margin-bottom: 0.5em;
+      }
+      form {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 1em;
+      }
+      textarea {
+        flex-grow: 1;
+        padding: 0.5em;
+        font-size: 1.2em;
+        border-radius: 4px;
+        border: none;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        background-color: #111111;
+        color: #00ffff;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        resize: vertical;
+      }
+      input[type="submit"] {
+        margin-left: 0.5em;
+        padding: 0.5em;
+        font-size: 1.2em;
+        border-radius: 4px;
+        border: none;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      #chat-log {
+        padding: 1em;
+        background-color: #111111;
+        border-radius: 4px;
+        min-height: 200px;
+        font-size: 1.2em;
+        overflow-y: scroll;
+        word-wrap: break-word;
+      }
+      .bot-message {
+            margin-bottom: 1em;
+            color: #00ff00;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat with GPT-4</h1>
+    <form id="chat-form">
+      {% csrf_token %}
+      <textarea id="user-input" name="content" placeholder="Type your message here... (Press Ctrl+Enter to submit)"></textarea>
+      <button type="submit">Send</button>
+    </form>
+    <div id="chat-log"></div>
+    <script>
+      const form = document.getElementById('chat-form');
+      const userInput = document.getElementById('user-input');
+      const chatLog = document.getElementById('chat-log');
+
+      userInput.addEventListener('keydown', (event) => {
+        if (event.keyCode === 13 && event.shiftKey) {
+          event.preventDefault();
+          userInput.value += '\n';
+        } else if (event.key === 'Enter' && event.ctrlKey) {
+          event.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+          } else if (event.keyCode === 13) {
+          event.preventDefault();
+        }
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const content = userInput.value.trim();
+        if (content !== '') {
+          const xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText).response;
+              chatLog.innerHTML += '<p class="bot-message">Bot:<pre>' + response + '</pre></p>';
+              chatLog.scrollTop = chatLog.scrollHeight;
+              userInput.value = '';
+            }
+          };
+          xhr.open('POST', '/chat', true);
+          const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+          xhr.setRequestHeader('X-CSRFToken', csrfToken);
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          xhr.send('content=' + encodeURIComponent(content));
+          chatLog.innerHTML += '<p>' + 'You: ' + content.replace(/\n/g, '<br>') + '</p>';
+          chatLog.scrollTop = chatLog.scrollHeight;
+          userInput.value = '';
+        }
+      });
+    </script>
+  </body>
+</html>
