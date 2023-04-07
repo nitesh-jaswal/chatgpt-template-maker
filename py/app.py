@@ -67,7 +67,7 @@ def chat():
 
 def main():
     logger.info("Session started")
-    app.run(debug=True)
+    app.run(port=5000, debug=True, host='0.0.0.0')
 
 
 if __name__ == '__main__':
